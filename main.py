@@ -45,10 +45,12 @@ class Player:
         self.hand = []
         self.hand_pos = hand_pos
 
+
 class Bot:
     def __init__(self, hand_pos):
         self.hand = []
         self.hand_pos = hand_pos
+
 
 class Card:
     def __init__(self, name, position, hand, position_in_hand):
@@ -77,6 +79,37 @@ class Card:
         self.position[1] += direction[1] * speed
 
         return False
+
+
+def play_card(player, card_index):
+    # Проверяем, что индекс карты находится в допустимом диапазоне
+    if card_index < 0 or card_index >= len(player.hand):
+        return
+
+    # Получаем имя карты, которую игрок хочет сыграть
+    card_name = player.hand[card_index]
+
+    # Создаем объект карты
+    card = Card(card_name, player.hand_pos, player.hand, card_index)
+
+    # Задаем цель для перемещения карты на середину экрана
+    target = (SCREEN_WIDTH / 2 - CARD_WIDTH / 2, SCREEN_HEIGHT / 2 - CARD_HEIGHT / 2)
+    card.target = list(target)
+    card.position = list(player.hand_pos)  # Обновляем позицию карты
+
+    # Добавляем карту в список движущихся карт
+    moving_cards.append(card)
+
+    # Добавляем задержку перед удалением карты из руки игрока
+    pygame.time.wait(500)
+    del player.hand[card_index]
+    card.position = list(target)  # Обновляем позицию карты
+    table_cards.append(card)  # Добавляем карту на стол
+
+    # Обновляем позицию карты на столе
+    card.position = list(target)
+
+
 
 
 # Создание игроков
@@ -112,6 +145,10 @@ game_state = 'dealing'
 # Главный цикл игры
 running = True
 deal_to_player = True  # Начинаем с раздачи карт игроку
+
+# Список карт на столе
+table_cards = []
+
 while running:
     # Очистка экрана перед каждым новым кадром
     screen.fill((0, 0, 0))
@@ -152,6 +189,11 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE and game_state == 'playing':
+                # Ход игрока
+                if len(player.hand) > 0 and len(moving_cards) == 0 and deal_to_player:
+                    play_card(player, 0)  # Пример: игрок ходит первой картой из руки
 
     # Двигаем карты и удаляем те, которые достигли цели
     for card in moving_cards:
@@ -162,10 +204,11 @@ while running:
             moving_cards.remove(card)
             if card.reached_target:
                 card.hand.append(card.name)
+        card.position = list(card.position)  # Обновляем позицию карты
 
     for card in moving_cards:
         card_image = cards[card.name]
-        screen.blit(card_image, tuple(card.position))
+        screen.blit(card_image, tuple(map(int, card.position)))
 
     # Для отображения карт в руке игрока
     hand_width = len(player.hand) * CARD_OFFSET
@@ -193,6 +236,12 @@ while running:
     # Рисование обратной стороны карты (колоды)
     for i in range(3):  # Рисуем три карты для иллюзии
         screen.blit(back_card_image, (SCREEN_WIDTH - CARD_WIDTH - i * 5, SCREEN_HEIGHT // 2.5 - i * 5))
+
+    # Отображение карт на столе
+    for card in table_cards:
+        card_image = cards[card.name]
+        card_pos = (SCREEN_WIDTH / 2 - CARD_WIDTH / 2, SCREEN_HEIGHT / 2 - CARD_HEIGHT / 2)
+        screen.blit(card_image, card_pos)
 
     pygame.display.flip()
 
