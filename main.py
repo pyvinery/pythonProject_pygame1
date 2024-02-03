@@ -55,7 +55,7 @@ class Bot:
 class Card:
     def __init__(self, name, position, hand, position_in_hand):
         self.name = name
-        self.position = list(position)
+        self.position = position  # Keep the position as a list
         self.hand = hand
         self.target = None
         self.reached_target = False
@@ -75,8 +75,8 @@ class Card:
         direction = [self.target[0] - self.position[0], self.target[1] - self.position[1]]
         length = (direction[0] ** 2 + direction[1] ** 2) ** 0.5
         direction = [direction[0] / length, direction[1] / length]
-        self.position[0] += direction[0] * speed
-        self.position[1] += direction[1] * speed
+        new_position = [self.position[0] + direction[0] * speed, self.position[1] + direction[1] * speed]
+        self.position = new_position
 
         return False
 
@@ -87,10 +87,11 @@ def play_card(player, card_index):
         return
 
     # Получаем имя карты, которую игрок хочет сыграть
-    card_name = player.hand[card_index]
+    card_name = player.hand.pop(card_index)
 
     # Создаем объект карты
-    card = Card(card_name, player.hand_pos, player.hand, card_index)
+    card = Card(card_name, list(player.hand_pos), player.hand, card_index)  # Pass the position as a list
+
 
     # Задаем цель для перемещения карты на середину экрана
     target = (SCREEN_WIDTH / 2 - CARD_WIDTH / 2, SCREEN_HEIGHT / 2 - CARD_HEIGHT / 2)
@@ -100,14 +101,23 @@ def play_card(player, card_index):
     # Добавляем карту в список движущихся карт
     moving_cards.append(card)
 
-    # Добавляем задержку перед удалением карты из руки игрока
-    pygame.time.wait(500)
-    del player.hand[card_index]
-    card.position = list(target)  # Обновляем позицию карты
-    table_cards.append(card)  # Добавляем карту на стол
+    # Обновляем переменную hand_width после удаления карты из руки игрока
+    hand_width = len(player.hand) * CARD_OFFSET
 
-    # Обновляем позицию карты на столе
-    card.position = list(target)
+    # Перемещаем последнюю карту в начало списка
+    if len(table_cards) > 1:
+        table_cards.append(table_cards.pop(0))
+
+    # Обновляем позицию только для новой карты на столе
+    start_pos = (SCREEN_WIDTH - hand_width) / 2
+    card.position = (start_pos + len(table_cards) * CARD_WIDTH, 3 * SCREEN_HEIGHT / 4)
+
+    for i, table_card in enumerate(table_cards):
+        table_card.position = (start_pos + i * CARD_WIDTH, 3 * SCREEN_HEIGHT / 4)
+
+    # Добавляем карту на стол
+    table_cards.append(card)
+
 
 
 
@@ -185,7 +195,6 @@ while running:
         # Добавляем задержку между раздачей карт
         pygame.time.wait(40)
 
-
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -193,7 +202,25 @@ while running:
             if event.key == pygame.K_SPACE and game_state == 'playing':
                 # Ход игрока
                 if len(player.hand) > 0 and len(moving_cards) == 0 and deal_to_player:
-                    play_card(player, 0)  # Пример: игрок ходит первой картой из руки
+                    card_index = 0  # Индекс первой карты в руке игрока
+                    play_card(player, card_index)  # Вызываем функцию play_card для выбрасывания карты на середину стола
+        elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and game_state == 'playing':
+            # Ход игрока
+            if len(player.hand) > 0 and len(moving_cards) == 0 and deal_to_player:
+                # Определите позицию курсора мыши
+                mouse_pos = pygame.mouse.get_pos()
+
+                # Проверьте, на какую карту нажал игрок
+                for i, card_name in enumerate(player.hand):
+                    card_image = cards[card_name]
+                    card_pos = (start_pos + i * CARD_OFFSET, 3 * SCREEN_HEIGHT / 3.407)
+                    card_rect = pygame.Rect(card_pos, (CARD_WIDTH, CARD_HEIGHT))
+                    screen.blit(card_image, card_pos)
+
+                    # Проверьте, на какую карту нажал игрок
+                    if card_rect.collidepoint(mouse_pos):
+                        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and game_state == 'playing':
+                            play_card(player, i)  # Вызываем функцию play_card для выбрасывания карты на середину стола
 
     # Двигаем карты и удаляем те, которые достигли цели
     for card in moving_cards:
@@ -238,9 +265,10 @@ while running:
         screen.blit(back_card_image, (SCREEN_WIDTH - CARD_WIDTH - i * 5, SCREEN_HEIGHT // 2.5 - i * 5))
 
     # Отображение карт на столе
-    for card in table_cards:
+    start_pos = (SCREEN_WIDTH - len(table_cards) * CARD_WIDTH) / 2
+    for i, card in enumerate(table_cards):
         card_image = cards[card.name]
-        card_pos = (SCREEN_WIDTH / 2 - CARD_WIDTH / 2, SCREEN_HEIGHT / 2 - CARD_HEIGHT / 2)
+        card_pos = (start_pos + i * CARD_WIDTH, SCREEN_HEIGHT / 2 - CARD_HEIGHT / 2)
         screen.blit(card_image, card_pos)
 
     pygame.display.flip()
