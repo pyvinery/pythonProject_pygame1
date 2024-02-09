@@ -154,6 +154,7 @@ game_state = 'dealing'
 # Главный цикл игры
 running = True
 deal_to_player = True  # Начинаем с раздачи карт игроку
+bot_turn = False # Изначально очередь хода у игрока
 
 # Список карт на столе
 table_cards = []
@@ -203,13 +204,20 @@ while running:
                 if len(player.hand) > 0 and len(moving_cards) == 0 and deal_to_player:
                     card_index = 0  # Индекс первой карты в руке игрока
                     play_card(player, card_index)  # Вызываем функцию play_card для выбрасывания карты на середину стола
-            elif event.key in [pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4, pygame.K_5,
-                               pygame.K_6] and game_state == 'playing':
+                    bot_turn = True  # Переключаем очередность хода на бота
+            elif event.key in [pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4, pygame.K_5, pygame.K_6] and game_state == 'playing':
                 # Ход игрока
                 if len(player.hand) > 0 and len(moving_cards) == 0 and deal_to_player:
                     # Определите индекс карты, соответствующей нажатой клавише
                     card_index = event.key - pygame.K_1  # Индекс карты в руке игрока (0-5)
                     play_card(player, card_index)  # Вызываем функцию play_card для выбрасывания карты на середину стола
+                    bot_turn = True  # Переключаем очередность хода на бота
+    if bot_turn:
+        if len(bot.hand) > 0 and len(moving_cards) == 0:
+            # Ход бота
+            card_index = random.randint(0, len(bot.hand) - 1)  # Случайным образом выбираем индекс карты из руки бота
+            play_card(bot, card_index)  # Вызываем функцию play_card для выбрасывания карты на середину стола
+            bot_turn = False  # Переключаем очередность хода на игрока
 
     # Двигаем карты и удаляем те, которые достигли цели
     for card in moving_cards:
