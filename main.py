@@ -55,8 +55,8 @@ class Bot:
 class Card:
     def __init__(self, name, position, hand, position_in_hand):
         self.name = name
-        self.position = position  # Keep the position as a list
-        self.hand = hand
+        self.position = position
+        self.hand = hand if hand is not None else []  # Инициализация атрибута hand пустым списком, если hand равен None
         self.target = None
         self.reached_target = False
         self.position_in_hand = position_in_hand
@@ -90,8 +90,7 @@ def play_card(player, card_index):
     card_name = player.hand.pop(card_index)
 
     # Создаем объект карты
-    card = Card(card_name, list(player.hand_pos), player.hand, card_index)  # Pass the position as a list
-
+    card = Card(card_name, list(player.hand_pos), None, card_index)  # Pass the position as a list
 
     # Задаем цель для перемещения карты на середину экрана
     target = (SCREEN_WIDTH / 2 - CARD_WIDTH / 2, SCREEN_HEIGHT / 2 - CARD_HEIGHT / 2)
@@ -204,27 +203,17 @@ while running:
                 if len(player.hand) > 0 and len(moving_cards) == 0 and deal_to_player:
                     card_index = 0  # Индекс первой карты в руке игрока
                     play_card(player, card_index)  # Вызываем функцию play_card для выбрасывания карты на середину стола
-        elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and game_state == 'playing':
-            # Ход игрока
-            if len(player.hand) > 0 and len(moving_cards) == 0 and deal_to_player:
-                # Определите позицию курсора мыши
-                mouse_pos = pygame.mouse.get_pos()
-
-                # Проверьте, на какую карту нажал игрок
-                for i, card_name in enumerate(player.hand):
-                    card_image = cards[card_name]
-                    card_pos = (start_pos + i * CARD_OFFSET, 3 * SCREEN_HEIGHT / 3.407)
-                    card_rect = pygame.Rect(card_pos, (CARD_WIDTH, CARD_HEIGHT))
-                    screen.blit(card_image, card_pos)
-
-                    # Проверьте, на какую карту нажал игрок
-                    if card_rect.collidepoint(mouse_pos):
-                        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and game_state == 'playing':
-                            play_card(player, i)  # Вызываем функцию play_card для выбрасывания карты на середину стола
+            elif event.key in [pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4, pygame.K_5,
+                               pygame.K_6] and game_state == 'playing':
+                # Ход игрока
+                if len(player.hand) > 0 and len(moving_cards) == 0 and deal_to_player:
+                    # Определите индекс карты, соответствующей нажатой клавише
+                    card_index = event.key - pygame.K_1  # Индекс карты в руке игрока (0-5)
+                    play_card(player, card_index)  # Вызываем функцию play_card для выбрасывания карты на середину стола
 
     # Двигаем карты и удаляем те, которые достигли цели
     for card in moving_cards:
-        hand_width = len(card.hand) * CARD_OFFSET
+        hand_width = len(player.hand) * CARD_OFFSET
         start_pos = (SCREEN_WIDTH - hand_width) / 2
         target = (start_pos + card.position_in_hand * CARD_OFFSET, card.target[1])
         if card.move_towards(target, 100):
