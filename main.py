@@ -103,20 +103,21 @@ def play_card(player, card_index):
         if table_card.name != trump_card and common_letters(table_card.name, card_name) < 2:
             # Бот не может отбить карту игрока, выбираем случайную карту из руки бота
             playable_cards = []
-            for bot_card_name in player.hand:
+            for bot_card_name in bot.hand:
                 if common_letters(bot_card_name, card_name) >= 2:
                     playable_cards.append(bot_card_name)
             if len(playable_cards) > 0:
                 card_name = random.choice(playable_cards)
             else:
-                card_name = random.choice([card for card in player.hand if common_letters(card[1:], card_name[1:]) >= 2])
+                # Бот забирает карту со стола, если не может отбить карту игрока
+                if len(table_cards) > 0:
+                    table_card = table_cards[-1]
+                    card_name = table_card.name
+                    table_cards.remove(table_card)
+                    bot.hand.append(card_name)
+                else:
+                    card_name = random.choice(bot.hand)
 
-            if len(playable_cards) > 0:
-                card_name = random.choice(playable_cards)
-            else:
-                card_index = random.choice(
-                    [i for i, card in enumerate(player.hand) if common_letters(card[1:], card_name[1:]) >= 2])
-                card_name = player.hand.pop(card_index)
             target = (SCREEN_WIDTH / 2 - CARD_WIDTH / 2 - 80, SCREEN_HEIGHT / 2 - CARD_HEIGHT / 2)
             card.target = list(target)
             card.position = list(player.hand_pos)
@@ -140,7 +141,6 @@ def play_card(player, card_index):
 
     # Добавляем карту на стол
     table_cards.append(card)
-
 
 
 
