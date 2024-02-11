@@ -97,6 +97,30 @@ def play_card(player, card_index):
     card.target = list(target)
     card.position = list(player.hand_pos)  # Обновляем позицию карты
 
+    # Проверяем, может ли бот отбить карту игрока
+    if len(table_cards) > 0:
+        table_card = table_cards[-1]
+        if table_card.name != trump_card and common_letters(table_card.name, card_name) < 2:
+            # Бот не может отбить карту игрока, выбираем случайную карту из руки бота
+            playable_cards = []
+            for bot_card_name in player.hand:
+                if common_letters(bot_card_name, card_name) >= 2:
+                    playable_cards.append(bot_card_name)
+            if len(playable_cards) > 0:
+                card_name = random.choice(playable_cards)
+            else:
+                card_name = random.choice([card for card in player.hand if common_letters(card[1:], card_name[1:]) >= 2])
+
+            if len(playable_cards) > 0:
+                card_name = random.choice(playable_cards)
+            else:
+                card_index = random.choice(
+                    [i for i, card in enumerate(player.hand) if common_letters(card[1:], card_name[1:]) >= 2])
+                card_name = player.hand.pop(card_index)
+            target = (SCREEN_WIDTH / 2 - CARD_WIDTH / 2 - 80, SCREEN_HEIGHT / 2 - CARD_HEIGHT / 2)
+            card.target = list(target)
+            card.position = list(player.hand_pos)
+
     # Добавляем карту в список движущихся карт
     moving_cards.append(card)
 
@@ -215,7 +239,20 @@ while running:
     if bot_turn:
         if len(bot.hand) > 0 and len(moving_cards) == 0:
             # Ход бота
-            card_index = random.randint(0, len(bot.hand) - 1)  # Случайным образом выбираем индекс карты из руки бота
+            table_card = table_cards[-1] if len(table_cards) > 0 else None
+            playable_cards = []
+            for card_name in bot.hand:
+                card = cards[card_name]
+                if table_card is None or card.get_clip() == cards[
+                    table_card.name].get_clip() or card.get_clip() == trump_card:
+                    playable_cards.append(card_name)
+            if len(playable_cards) > 0:
+                # Бот может отбить карту игрока
+                card_name = random.choice(playable_cards)
+            else:
+                # Бот не может отбить карту игрока, выбираем случайную карту из руки бота
+                card_name = random.choice([card for card in player.hand if common_letters(card[1:], card_name[1:]) >= 2])
+            card_index = random.choice([i for i, card in enumerate(bot.hand) if card == card_name])
             play_card(bot, card_index)  # Вызываем функцию play_card для выбрасывания карты на середину стола
             bot_turn = False  # Переключаем очередность хода на игрока
 
