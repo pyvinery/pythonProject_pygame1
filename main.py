@@ -34,8 +34,8 @@ for filename in card_files:
 available_cards = list(cards.keys())
 
 
-# Функция для сравнения букв в двух строках
-def common_letters(string1, string2):
+# Функция для сравнения длины имен
+def common_length(string1, string2):
     return len(set(string1) & set(string2))
 
 
@@ -118,9 +118,11 @@ def play_card(player, card_index):
     # Добавляем карту на стол
     table_cards.append(card)
 
-
-
-
+def can_defend(table_card, bot_hand):
+    for card_name in bot_hand:
+        if len(table_card.name) == len(card_name):
+            return True
+    return False
 
 
 # Создание игроков
@@ -227,7 +229,7 @@ while running:
 
             if len(table_cards) > 0:
                 table_card = table_cards[-1]
-                if common_letters(table_card.name, card_name) < 2:
+                if not can_defend(table_card, bot.hand):
                     # Бот не может отбить карту игрока, добавляем карту со стола в руку
                     table_card = table_cards[-1]
                     card_name = table_card.name
