@@ -97,30 +97,6 @@ def play_card(player, card_index):
     card.target = list(target)
     card.position = list(player.hand_pos)  # Обновляем позицию карты
 
-    # Проверяем, может ли бот отбить карту игрока
-    if len(table_cards) > 0:
-        table_card = table_cards[-1]
-        if table_card.name != trump_card and common_letters(table_card.name, card_name) < 2:
-            # Бот не может отбить карту игрока, выбираем случайную карту из руки бота
-            playable_cards = []
-            for bot_card_name in bot.hand:
-                if common_letters(bot_card_name, card_name) >= 2:
-                    playable_cards.append(bot_card_name)
-            if len(playable_cards) > 0:
-                card_name = random.choice(playable_cards)
-            else:
-                # Бот забирает карту со стола, если не может отбить карту игрока
-                if len(table_cards) > 0:
-                    table_card = table_cards[-1]
-                    card_name = table_card.name
-                    table_cards.remove(table_card)
-                    bot.hand.append(card_name)
-                else:
-                    card_name = random.choice(bot.hand)
-
-            target = (SCREEN_WIDTH / 2 - CARD_WIDTH / 2 - 80, SCREEN_HEIGHT / 2 - CARD_HEIGHT / 2)
-            card.target = list(target)
-            card.position = list(player.hand_pos)
 
     # Добавляем карту в список движущихся карт
     moving_cards.append(card)
@@ -141,6 +117,8 @@ def play_card(player, card_index):
 
     # Добавляем карту на стол
     table_cards.append(card)
+
+
 
 
 
@@ -244,16 +222,53 @@ while running:
             for card_name in bot.hand:
                 card = cards[card_name]
                 if table_card is None or card.get_clip() == cards[
-                    table_card.name].get_clip() or card.get_clip() == trump_card:
+                    table_card.name].get_clip():
                     playable_cards.append(card_name)
-            if len(playable_cards) > 0:
-                # Бот может отбить карту игрока
-                card_name = random.choice(playable_cards)
-            else:
-                # Бот не может отбить карту игрока, выбираем случайную карту из руки бота
-                card_name = random.choice([card for card in player.hand if common_letters(card[1:], card_name[1:]) >= 2])
-            card_index = random.choice([i for i, card in enumerate(bot.hand) if card == card_name])
-            play_card(bot, card_index)  # Вызываем функцию play_card для выбрасывания карты на середину стола
+
+            if len(table_cards) > 0:
+                table_card = table_cards[-1]
+                if common_letters(table_card.name, card_name) < 2:
+                    # Бот не может отбить карту игрока, добавляем карту со стола в руку
+                    table_card = table_cards[-1]
+                    card_name = table_card.name
+                    table_cards.remove(table_card)
+                    bot.hand.append(card_name)  # Добавляем карту в руку бота
+
+                else:
+                    # Бот может отбить карту игрока
+                    card_index = bot.hand.index(card_name)
+                    bot.hand.remove(card_name)  # Удаляем карту из руки бота
+
+                    # Создаем объект карты
+                    card = Card(card_name, list(bot.hand_pos), None, card_index)  # Pass the position as a list
+
+                    # Задаем цель для перемещения карты на середину экрана
+                    target = (SCREEN_WIDTH / 2 - CARD_WIDTH / 2, SCREEN_HEIGHT / 2 - CARD_HEIGHT / 2)
+                    card.target = list(target)
+                    card.position = list(bot.hand_pos)  # Обновляем позицию карты
+
+                    # Добавляем карту в список движущихся карт
+                    moving_cards.append(card)
+
+                    # Обновляем переменную hand_width после удаления карты из руки игрока
+                    hand_width = len(bot.hand) * CARD_OFFSET
+
+                    # Перемещаем последнюю карту в начало списка
+                    if len(table_cards) > 1:
+                        table_cards.append(table_cards.pop(0))
+
+                    # Обновляем позицию только для новой карты на столе
+                    start_pos = (SCREEN_WIDTH - hand_width) / 2
+                    card.position = (start_pos + len(table_cards) * CARD_WIDTH, 3 * SCREEN_HEIGHT / 4)
+
+                    for i, table_card in enumerate(table_cards):
+                        table_card.position = (start_pos + i * CARD_WIDTH, 3 * SCREEN_HEIGHT / 4)
+
+                    # Добавляем карту на стол
+                    table_cards.append(card)
+
+
+
             bot_turn = False  # Переключаем очередность хода на игрока
 
     # Двигаем карты и удаляем те, которые достигли цели
