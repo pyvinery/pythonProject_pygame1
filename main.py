@@ -162,6 +162,9 @@ running = True
 deal_to_player = True  # Начинаем с раздачи карт игроку
 bot_turn = False # Изначально очередь хода у игрока
 
+# Создаем список карт, которые были отбиты
+discarded_cards = []
+
 # Список карт на столе
 table_cards = []
 
@@ -276,8 +279,6 @@ while running:
 
                             break  # Выходим из цикла, так как карта отбита
 
-
-
             bot_turn = False  # Переключаем очередность хода на игрока
 
     # Двигаем карты и удаляем те, которые достигли цели
@@ -326,7 +327,11 @@ while running:
     start_pos = (SCREEN_WIDTH - len(table_cards) * CARD_WIDTH) / 2
     for i, card in enumerate(table_cards):
         card_image = cards[card.name]
+        # Изменение позиции карты, чтобы она ложилась не рядом с картой игрока, а на половину на неё
         card_pos = (start_pos + i * CARD_WIDTH, SCREEN_HEIGHT / 2 - CARD_HEIGHT / 2)
+        if i > 0:
+            prev_card_pos = (start_pos + (i - 1) * CARD_WIDTH, SCREEN_HEIGHT / 2 - CARD_HEIGHT / 2)
+            card_pos = ((card_pos[0] + prev_card_pos[0]) / 2, card_pos[1])
         screen.blit(card_image, card_pos)
 
     pygame.display.flip()
