@@ -118,11 +118,13 @@ def play_card(player, card_index):
     # Добавляем карту на стол
     table_cards.append(card)
 
+
 def can_defend(table_card, bot_hand):
     for card_name in bot_hand:
         if len(table_card.name) == len(card_name):
             return True
     return False
+
 
 
 # Создание игроков
@@ -235,39 +237,44 @@ while running:
                     card_name = table_card.name
                     table_cards.remove(table_card)
                     bot.hand.append(card_name)  # Добавляем карту в руку бота
-
                 else:
                     # Бот может отбить карту игрока
-                    card_index = bot.hand.index(card_name)
-                    bot.hand.remove(card_name)  # Удаляем карту из руки бота
+                    # Проверяем, есть ли в руке бота карта, длина имени которой совпадает с длиной имени карты на столе
+                    for card_name in bot.hand:
+                        if len(table_card.name) == len(card_name):
+                            # Если такая карта есть, используем её для отбития
+                            card_index = bot.hand.index(card_name)
+                            bot.hand.remove(card_name)  # Удаляем карту из руки бота
 
-                    # Создаем объект карты
-                    card = Card(card_name, list(bot.hand_pos), None, card_index)  # Pass the position as a list
+                            # Создаем объект карты
+                            card = Card(card_name, list(bot.hand_pos), None, card_index)  # Pass the position as a list
 
-                    # Задаем цель для перемещения карты на середину экрана
-                    target = (SCREEN_WIDTH / 2 - CARD_WIDTH / 2, SCREEN_HEIGHT / 2 - CARD_HEIGHT / 2)
-                    card.target = list(target)
-                    card.position = list(bot.hand_pos)  # Обновляем позицию карты
+                            # Задаем цель для перемещения карты на середину экрана
+                            target = (SCREEN_WIDTH / 2 - CARD_WIDTH / 2, SCREEN_HEIGHT / 2 - CARD_HEIGHT / 2)
+                            card.target = list(target)
+                            card.position = list(bot.hand_pos)  # Обновляем позицию карты
 
-                    # Добавляем карту в список движущихся карт
-                    moving_cards.append(card)
+                            # Добавляем карту в список движущихся карт
+                            moving_cards.append(card)
 
-                    # Обновляем переменную hand_width после удаления карты из руки игрока
-                    hand_width = len(bot.hand) * CARD_OFFSET
+                            # Обновляем переменную hand_width после удаления карты из руки игрока
+                            hand_width = len(bot.hand) * CARD_OFFSET
 
-                    # Перемещаем последнюю карту в начало списка
-                    if len(table_cards) > 1:
-                        table_cards.append(table_cards.pop(0))
+                            # Перемещаем последнюю карту в начало списка
+                            if len(table_cards) > 1:
+                                table_cards.append(table_cards.pop(0))
 
-                    # Обновляем позицию только для новой карты на столе
-                    start_pos = (SCREEN_WIDTH - hand_width) / 2
-                    card.position = (start_pos + len(table_cards) * CARD_WIDTH, 3 * SCREEN_HEIGHT / 4)
+                            # Обновляем позицию только для новой карты на столе
+                            start_pos = (SCREEN_WIDTH - hand_width) / 2
+                            card.position = (start_pos + len(table_cards) * CARD_WIDTH, 3 * SCREEN_HEIGHT / 4)
 
-                    for i, table_card in enumerate(table_cards):
-                        table_card.position = (start_pos + i * CARD_WIDTH, 3 * SCREEN_HEIGHT / 4)
+                            for i, table_card in enumerate(table_cards):
+                                table_card.position = (start_pos + i * CARD_WIDTH, 3 * SCREEN_HEIGHT / 4)
 
-                    # Добавляем карту на стол
-                    table_cards.append(card)
+                            # Добавляем карту на стол
+                            table_cards.append(card)
+
+                            break  # Выходим из цикла, так как карта отбита
 
 
 
