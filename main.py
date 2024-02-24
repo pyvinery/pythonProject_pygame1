@@ -1,6 +1,8 @@
+import subprocess
 import pygame
 import os
 import random
+
 
 # Определение констант
 SCREEN_WIDTH, SCREEN_HEIGHT = 1000, 1000
@@ -214,7 +216,8 @@ while running:
                     card_index = 0  # Индекс первой карты в руке игрока
                     play_card(player, card_index)  # Вызываем функцию play_card для выбрасывания карты на середину стола
                     bot_turn = True  # Переключаем очередность хода на бота
-            elif event.key in [pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4, pygame.K_5, pygame.K_6] and game_state == 'playing':
+            elif event.key in [pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4, pygame.K_5,
+                               pygame.K_6] and game_state == 'playing':
                 # Ход игрока
                 if len(player.hand) > 0 and len(moving_cards) == 0 and deal_to_player:
                     # Определите индекс карты, соответствующей нажатой клавише
