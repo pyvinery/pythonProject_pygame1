@@ -18,8 +18,9 @@ class StartWindow:
         self.play_button_text = pygame.font.SysFont("Arial", 36).render("Играть", True, (0, 0, 0))
 
         # Создание поля для ввода имени
-        self.name_input = pygame.Rect(200, 100, 200, 50)
-        self.name_input_text = pygame.font.SysFont("Arial", 36).render("", True, (0, 0, 0))
+        self.input_box = pygame.Rect(200, 100, 200, 50)
+        self.input_text = ''
+        self.active = False
 
         # Флаг, указывающий, что окно должно быть закрыто
         self.close_window = False
@@ -27,27 +28,55 @@ class StartWindow:
         # Флаг, указывающий, что кнопка "Играть" была нажата
         self.play_button_clicked = False
 
+        # Загрузка изображения фона
+        self.background_image = pygame.image.load('fon.jpg')
+        self.background_image = pygame.transform.scale(self.background_image, (640, 480))  # Масштабирование изображения под размер окна
 
     def handle_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.close_window = True
             elif event.type == pygame.MOUSEBUTTONDOWN:
+                # Проверка, был ли клик в поле ввода имени
+                if self.input_box.collidepoint(event.pos):
+                    self.active = True
+                else:
+                    self.active = False
+                # Проверка, была ли нажата кнопка "Играть"
                 if self.play_button.collidepoint(event.pos):
                     # Установка флага, что кнопка "Играть" была нажата
                     self.play_button_clicked = True
+            elif event.type == pygame.KEYDOWN:
+                # Проверка, была ли нажата клавиша Enter
+                if event.key == pygame.K_RETURN:
+                    # Если нажата клавиша Enter, начать игру
+                    game_state = 'dealing'
+                # Проверка, была ли нажата клавиша Backspace
+                elif event.key == pygame.K_BACKSPACE:
+                    # Если нажата клавиша Backspace, удалить последний символ из введенного текста
+                    self.input_text = self.input_text[:-1]
+                # Проверка, была ли нажата любая другая клавиша
+                else:
+                    # Если нажата любая другая клавиша, добавить ее к введенному тексту
+                    self.input_text += event.unicode
 
     def draw(self):
-        # Заполнение окна белым цветом
-        self.window.fill((255, 255, 255))
+        # Отрисовка фона
+        self.window.blit(self.background_image, (0, 0))
 
         # Отрисовка кнопки "Играть"
         pygame.draw.rect(self.window, (0, 179, 0), self.play_button)
         self.window.blit(self.play_button_text, (self.play_button.x + 50, self.play_button.y + 10))
 
         # Отрисовка поля для ввода имени
-        pygame.draw.rect(self.window, (0, 0, 0), self.name_input)
-        self.window.blit(self.name_input_text, (self.name_input.x + 50, self.name_input.y + 10))
+        pygame.draw.rect(self.window, (0, 0, 0), self.input_box)
+        pygame.draw.rect(self.window, (128, 128, 128), self.input_box.inflate(-4, -4))  # Добавление затемнения
+
+        # Создание и обновление текстовой поверхности с текущим введенным текстом
+        self.text_surface = pygame.font.Font('freesansbold.ttf', 20).render(self.input_text.encode('utf-8'), True, (0, 0, 0))
+
+        # Отображение текстовой поверхности в окне
+        self.window.blit(self.text_surface, (self.input_box.x + 5, self.input_box.y + 5))
 
         # Отображение окна
         pygame.display.update()
@@ -59,8 +88,9 @@ class StartWindow:
 
             # Проверка, была ли нажата кнопка "Играть"
             if self.play_button_clicked:
-                # Преобразование объекта pygame.Surface в строку
-                name_input_text_string = pygame.image.tostring(self.name_input_text, "RGB")
+                # Запись имени пользователя в файл `player_name.txt` в кодировке UTF-8
+                with open('player_name.txt', 'w', encoding='utf-8') as f:
+                    f.write(self.input_text)
 
                 # Запуск файла main.py
                 subprocess.call(["python", "main.py"])
@@ -68,6 +98,7 @@ class StartWindow:
                 # Закрытие окна запуска
                 self.close_window = True
 
+                # Вызов функции close() для завершения работы PyGame
                 close()
 
 def close():
