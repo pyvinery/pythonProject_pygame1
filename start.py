@@ -1,5 +1,3 @@
-import time
-
 import pygame
 import subprocess
 
@@ -30,7 +28,8 @@ class StartWindow:
 
         # Загрузка изображения фона
         self.background_image = pygame.image.load('fon.jpg')
-        self.background_image = pygame.transform.scale(self.background_image, (640, 480))  # Масштабирование изображения под размер окна
+        self.background_image = pygame.transform.scale(self.background_image,
+                                                       (640, 480))  # Масштабирование изображения под размер окна
 
     def handle_events(self):
         for event in pygame.event.get():
@@ -73,7 +72,8 @@ class StartWindow:
         pygame.draw.rect(self.window, (128, 128, 128), self.input_box.inflate(-4, -4))  # Добавление затемнения
 
         # Создание и обновление текстовой поверхности с текущим введенным текстом
-        self.text_surface = pygame.font.Font('freesansbold.ttf', 20).render(self.input_text.encode('utf-8'), True, (0, 0, 0))
+        self.text_surface = pygame.font.Font('freesansbold.ttf', 20).render(self.input_text.encode('utf-8'), True,
+                                                                            (0, 0, 0))
 
         # Отображение текстовой поверхности в окне
         self.window.blit(self.text_surface, (self.input_box.x + 5, self.input_box.y + 5))
@@ -102,7 +102,7 @@ class StartWindow:
                 close()
 
 
-class ResultWindow:                             # Поздравление, победа
+class ResultWindow:  # Поздравление, победа
     def __init__(self):
         # Инициализация PyGame
         pygame.init()
@@ -117,13 +117,15 @@ class ResultWindow:                             # Поздравление, по
 
         # Загрузка изображения фона
         self.background_image = pygame.image.load('fon.jpg')
-        self.background_image = pygame.transform.scale(self.background_image, (640, 480))  # Масштабирование изображения под размер окна
+        self.background_image = pygame.transform.scale(self.background_image,
+                                                       (640, 480))  # Масштабирование изображения под размер окна
 
         # Отрисовка фона
         self.window.blit(self.background_image, (0, 0))
 
         # Создание текстовой поверхности с сообщением о победителе
-        self.winner_text = pygame.font.SysFont("Arial", 36).render(f"Поздравляем, {winner_name}, вы победили!", True, (0, 0, 0))
+        self.winner_text = pygame.font.SysFont("Arial", 36).render(f"Поздравляю, {winner_name}, вы победили!", True,
+                                                                   (0, 0, 0))
 
         # Отрисовка фона
         self.window.blit(self.background_image, (0, 0))
@@ -137,18 +139,7 @@ class ResultWindow:                             # Поздравление, по
         close()
 
 
-
-
-
-
-
-
-
-
-
-
-
-class nobodyWindow:                              # Ничья
+class nobodyWindow:  # Ничья
     def __init__(self):
         # Инициализация PyGame
         pygame.init()
@@ -163,7 +154,8 @@ class nobodyWindow:                              # Ничья
 
         # Загрузка изображения фона
         self.background_image = pygame.image.load('fon.jpg')
-        self.background_image = pygame.transform.scale(self.background_image, (640, 480))  # Масштабирование изображения под размер окна
+        self.background_image = pygame.transform.scale(self.background_image,
+                                                       (640, 480))  # Масштабирование изображения под размер окна
 
         # Отрисовка фона
         self.window.blit(self.background_image, (0, 0))
@@ -178,22 +170,12 @@ class nobodyWindow:                              # Ничья
         # Отрисовка текстовой поверхности с сообщением о ничьей
         self.window.blit(self.draw_text, (10, 40))
 
-
-
         # Отображение окна
         pygame.display.update()
 
         pygame.time.wait(5000)
 
         close()
-
-
-
-
-
-
-
-
 
 
 def close():
@@ -204,9 +186,6 @@ def main(self):
     # Создание окна запуска игры
     start_window = StartWindow()
     start_window.run()
-
-
-
 
 
 if __name__ == '__main__':
