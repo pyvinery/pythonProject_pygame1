@@ -1,7 +1,7 @@
 import pygame
 import os
 import random
-
+from start import ResultWindow
 from start import nobodyWindow
 
 # Определение констант
@@ -334,13 +334,17 @@ while running:
         screen.blit(card_image, tuple(map(int, card.position)))
 
     # Проверка, сделал ли бот первый ход
-    if len(table_cards) == 2 or len(bot.hand) == 7:
+    if len(table_cards) >= 1:
         # Если бот сделал первый ход, проверяем, закончилась ли игра ничьей или нет карт в колоде
         if len(player.hand) == 5 and len(bot.hand) == 5:
             # Если у обоих игроков нет карт в руке, игра заканчивается ничьей
-            print("ход")
-            nobodyWindow().run()
-            print("ничья")
+            nobodyWindow()
+            running = False
+
+        # Проверка, остались ли карты в колоде
+        elif len(player.hand) == 5 and len(bot.hand) == 7:
+            # Если в колоде не осталось карт, игра заканчивается ничьей
+            ResultWindow()
             running = False
 
     # Для отображения карт в руке игрока

@@ -125,14 +125,6 @@ class ResultWindow:                             # Поздравление, по
         # Создание текстовой поверхности с сообщением о победителе
         self.winner_text = pygame.font.SysFont("Arial", 36).render(f"Поздравляем, {winner_name}, вы победили!", True, (0, 0, 0))
 
-
-
-        # Флаг, указывающий, что окно должно быть закрыто
-        self.close_window = False
-
-
-
-    def draw(self):
         # Отрисовка фона
         self.window.blit(self.background_image, (0, 0))
 
@@ -141,20 +133,18 @@ class ResultWindow:                             # Поздравление, по
 
         # Отображение окна
         pygame.display.update()
+        pygame.time.wait(5000)
+        close()
 
 
 
-    def run(self):
-        while not self.close_window:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-
-                    self.close_window = True
-
-            self.draw()
 
 
-            pygame.time.wait(5000)
+
+
+
+
+
 
 
 
