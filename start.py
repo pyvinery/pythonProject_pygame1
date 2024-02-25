@@ -1,8 +1,8 @@
-import os
-import sys
+import time
 
 import pygame
 import subprocess
+
 
 class StartWindow:
     def __init__(self):
@@ -101,8 +101,120 @@ class StartWindow:
                 # Вызов функции close() для завершения работы PyGame
                 close()
 
+
+class ResultWindow:                             # Поздравление, победа
+    def __init__(self):
+        # Инициализация PyGame
+        pygame.init()
+
+        # Создание окна
+        self.window = pygame.display.set_mode((640, 480))
+        pygame.display.set_caption("Результат игры")
+
+        # Получение имени победителя из файла `player_name.txt`
+        with open('player_name.txt', 'r', encoding='utf-8') as f:
+            winner_name = f.read()
+
+        # Загрузка изображения фона
+        self.background_image = pygame.image.load('fon.jpg')
+        self.background_image = pygame.transform.scale(self.background_image, (640, 480))  # Масштабирование изображения под размер окна
+
+        # Отрисовка фона
+        self.window.blit(self.background_image, (0, 0))
+
+        # Создание текстовой поверхности с сообщением о победителе
+        self.winner_text = pygame.font.SysFont("Arial", 36).render(f"Поздравляем, {winner_name}, вы победили!", True, (0, 0, 0))
+
+
+
+        # Флаг, указывающий, что окно должно быть закрыто
+        self.close_window = False
+
+
+
+    def draw(self):
+        # Отрисовка фона
+        self.window.blit(self.background_image, (0, 0))
+
+        # Отрисовка текстовой поверхности с сообщением о победителе
+        self.window.blit(self.winner_text, (10, 40))
+
+        # Отображение окна
+        pygame.display.update()
+
+
+
+    def run(self):
+        while not self.close_window:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+
+                    self.close_window = True
+
+            self.draw()
+
+
+            pygame.time.wait(5000)
+
+
+
+class nobodyWindow:                              # Ничья
+    def __init__(self):
+        # Инициализация PyGame
+        pygame.init()
+
+        # Создание окна
+        self.window = pygame.display.set_mode((640, 480))
+        pygame.display.set_caption("Результат игры")
+
+        # Получение имени победителя из файла `player_name.txt`
+        with open('player_name.txt', 'r', encoding='utf-8') as f:
+            winner_name = f.read()
+
+        # Загрузка изображения фона
+        self.background_image = pygame.image.load('fon.jpg')
+        self.background_image = pygame.transform.scale(self.background_image, (640, 480))  # Масштабирование изображения под размер окна
+
+        # Отрисовка фона
+        self.window.blit(self.background_image, (0, 0))
+
+        # Создание текстовой поверхности с сообщением о ничьей
+        self.x3 = pygame.Rect(200, 200, 200, 50)
+        self.draw_text = pygame.font.SysFont("Arial", 36).render(f"{winner_name}, ничья!", True, (0, 0, 0))
+
+        # Отрисовка фона
+        self.window.blit(self.background_image, (0, 0))
+
+        # Отрисовка текстовой поверхности с сообщением о ничьей
+        self.window.blit(self.draw_text, (10, 40))
+
+
+
+        # Отображение окна
+        pygame.display.update()
+
+        pygame.time.wait(5000)
+
+        close()
+
+
+
+
+
+
+
+
+
+
 def close():
     pygame.quit()
+
+
+def main(self):
+    # Создание окна запуска игры
+    start_window = StartWindow()
+    start_window.run()
+
 
 
 

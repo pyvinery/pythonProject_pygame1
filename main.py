@@ -1,8 +1,8 @@
-import subprocess
 import pygame
 import os
 import random
 
+from start import nobodyWindow
 
 # Определение констант
 SCREEN_WIDTH, SCREEN_HEIGHT = 1000, 1000
@@ -18,6 +18,9 @@ pygame.init()
 
 # Создание экрана
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+
+# Установка имени окна
+pygame.display.set_caption("cards")
 
 # Получение списка файлов в папке с картами
 card_files = [f for f in os.listdir(CARD_FOLDER) if os.path.isfile(os.path.join(CARD_FOLDER, f))]
@@ -129,6 +132,9 @@ def can_defend(table_card, bot_hand):
 
 
 
+
+
+
 # Создание игроков
 player = Player((0, SCREEN_HEIGHT - CARD_HEIGHT))
 bot = Bot((0, 0))
@@ -224,6 +230,9 @@ while running:
                     card_index = event.key - pygame.K_1  # Индекс карты в руке игрока (0-5)
                     play_card(player, card_index)  # Вызываем функцию play_card для выбрасывания карты на середину стола
                     bot_turn = True  # Переключаем очередность хода на бота
+
+
+
     if bot_turn:
         if len(bot.hand) > 0 and len(moving_cards) == 0:
             # Ход бота
@@ -243,6 +252,7 @@ while running:
                     card_name = table_card.name
                     table_cards.remove(table_card)
                     bot.hand.append(card_name)  # Добавляем карту в руку бота
+
                 else:
                     # Бот может отбить карту игрока
                     # Проверяем, есть ли в руке бота карта, первые цифры в имени которой выше, чем первые цифры в имени карты на столе
@@ -287,6 +297,8 @@ while running:
                                 # Добавляем карту на стол
                                 table_cards.append(card)
 
+
+
                                 break  # Выходим из цикла, так как карта отбита
 
                     else:
@@ -297,7 +309,13 @@ while running:
                         table_cards.remove(table_card)
                         bot.hand.append(card_name)  # Добавляем карту в руку бота
 
+
+
+
+
                 bot_turn = False  # Переключаем очередность хода на игрока
+
+
 
 
     # Двигаем карты и удаляем те, которые достигли цели
@@ -314,6 +332,16 @@ while running:
     for card in moving_cards:
         card_image = cards[card.name]
         screen.blit(card_image, tuple(map(int, card.position)))
+
+    # Проверка, сделал ли бот первый ход
+    if len(table_cards) == 2 or len(bot.hand) == 7:
+        # Если бот сделал первый ход, проверяем, закончилась ли игра ничьей или нет карт в колоде
+        if len(player.hand) == 5 and len(bot.hand) == 5:
+            # Если у обоих игроков нет карт в руке, игра заканчивается ничьей
+            print("ход")
+            nobodyWindow().run()
+            print("ничья")
+            running = False
 
     # Для отображения карт в руке игрока
     hand_width = len(player.hand) * CARD_OFFSET
